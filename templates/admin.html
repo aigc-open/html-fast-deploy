@@ -774,7 +774,7 @@
 
     <script>
         // 传递后端应用数据给前端JavaScript
-        window.appsData = {{ apps | tojson | safe }};
+        window.appsData = JSON.parse('{{ apps | tojson | safe }}');
         
         // 页面加载时检查认证状态
         window.addEventListener('load', function() {
@@ -939,9 +939,12 @@
             loading.style.display = 'block';
             
             try {
+                // 获取认证头，但不包含Content-Type
+                const authHeaders = getAuthHeaders();
+                
                 const response = await fetch('/admin/apps', {
                     method: 'POST',
-                    headers: getAuthHeaders(),
+                    headers: authHeaders, // 只包含Authorization头
                     body: formData
                 });
                 
@@ -954,6 +957,7 @@
                     showAlert(error.detail || '创建失败', 'error');
                 }
             } catch (error) {
+                console.error('创建应用错误:', error);
                 showAlert('创建失败，请重试', 'error');
             } finally {
                 // 恢复按钮状态
@@ -1015,9 +1019,12 @@
             loading.style.display = 'block';
             
             try {
+                // 获取认证头，但不包含Content-Type
+                const authHeaders = getAuthHeaders();
+                
                 const response = await fetch(`/admin/apps/${appName}`, {
                     method: 'PUT',
-                    headers: getAuthHeaders(),
+                    headers: authHeaders, // 只包含Authorization头
                     body: formData
                 });
                 
@@ -1030,6 +1037,7 @@
                     showAlert(error.detail || '更新失败', 'error');
                 }
             } catch (error) {
+                console.error('更新应用错误:', error);
                 showAlert('更新失败，请重试', 'error');
             } finally {
                 // 恢复按钮状态

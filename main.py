@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
 import aiofiles
@@ -29,6 +30,15 @@ logger.add(
 )
 
 app = FastAPI(title="HTML Fast Deploy", description="HTML 快速部署系统")
+
+# 添加CORS中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源，生产环境应该限制
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有HTTP方法
+    allow_headers=["*"],  # 允许所有请求头
+)
 
 # 安全配置
 security = HTTPBasic()
@@ -153,8 +163,7 @@ async def admin_page(request: Request):
 async def create_app(
     app_name: str = Form(...),
     html_file: UploadFile = File(...),
-    username: str = Depends(verify_credentials)
-):
+    username: str = Depends(verify_credentials)):
     """创建应用"""
     if not is_valid_app_name(app_name):
         raise HTTPException(status_code=400, detail="应用名称只能包含英文、数字、下划线和连字符")
@@ -359,8 +368,37 @@ async def serve_app_or_static(path: str, request: Request):
                 async with aiofiles.open(index_path, 'r', encoding='utf-8') as f:
                     content = await f.read()
                 
-                # 直接返回原始HTML内容，不进行路径替换
-                logger.info(f"返回原始HTML内容")
+                # 替换以/开头的相对路径为以./开头的相对路径
+                # 使用正则表达式匹配以/开头但不是完整URL的路径
+                import re
+                
+                def replace_absolute_paths(path):
+                    """替换绝对路径为相对路径"""
+                    # 如果是以http或https开头的完整URL，保持不变
+                    if path.startswith(('http://', 'https://', '//')):
+                        return path
+                    # 如果是以/开头的相对路径，替换为以./开头
+                    if path.startswith('/'):
+                        return './' + path[1:]
+                    return path
+                
+                # 匹配HTML中的各种属性中的路径
+                # 匹配 src="..." 或 href="..." 或 data-src="..." 等属性中的路径
+                content = re.sub(r'(["\'])(/[^"\']*?)(["\'])', 
+                               lambda m: m.group(1) + replace_absolute_paths(m.group(2)) + m.group(3), 
+                               content)
+                
+                # 匹配CSS中的url()路径
+                content = re.sub(r'url\((["\']?)(/[^"\')]*?)(["\']?)\)', 
+                               lambda m: 'url(' + m.group(1) + replace_absolute_paths(m.group(2)) + m.group(3) + ')', 
+                               content)
+                
+                # 图片
+                content = re.sub(r'src="([^"]+\.(jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot))"', 
+                               lambda m: f'src="{replace_absolute_paths(m.group(1))}"', 
+                               content)
+                
+                logger.info(f"返回处理后的HTML内容")
                 
                 return HTMLResponse(content=content)
             else:

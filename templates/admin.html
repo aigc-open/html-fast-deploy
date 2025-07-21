@@ -717,13 +717,18 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="htmlFile">HTML 文件</label>
+                    <label for="htmlFile">应用文件</label>
                     <div class="file-input-wrapper">
                         <input type="file" id="htmlFile" name="htmlFile" 
-                               class="file-input" accept=".html" required>
+                               class="file-input" accept=".html,.zip" required>
                         <label for="htmlFile" class="file-input-label" id="fileLabel">
-                            点击选择 HTML 文件或拖拽文件到此处
+                            点击选择 HTML 文件或 ZIP 压缩包
                         </label>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">
+                        <strong>支持格式：</strong><br>
+                        • 单个 HTML 文件<br>
+                        • ZIP 压缩包（包含 index.html 和静态资源）
                     </div>
                 </div>
                 
@@ -839,6 +844,8 @@
             const appsHTML = apps.map((app, index) => {
                 const createdTime = new Date(app.created_time * 1000).toLocaleString('zh-CN');
                 const fileSize = Math.floor(Math.random() * 100) + 50; // 模拟文件大小
+                const appType = app.type === 'directory' ? '完整应用' : '单文件';
+                const typeColor = app.type === 'directory' ? '#1dd1a1' : '#667eea';
                 
                 return `
                     <div class="app-card" style="animation-delay: ${index * 0.1}s;">
@@ -851,6 +858,7 @@
                         <div class="app-name">${app.name}</div>
                         <div class="app-info">
                             <strong>文件名:</strong> ${app.filename}<br>
+                            <strong>应用类型:</strong> <span style="color: ${typeColor};">${appType}</span><br>
                             <strong>创建时间:</strong> ${createdTime}<br>
                             <strong>文件大小:</strong> ${fileSize} KB
                         </div>

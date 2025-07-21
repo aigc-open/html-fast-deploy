@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Fast Deploy - 应用管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景动画效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 30s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(0.5deg); }
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info span {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .section h2 {
+            color: white;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(29, 209, 161, 0.4);
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardEnter 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes cardEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(102, 126, 234, 0.2),
+                0 0 40px rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+
+        .app-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .app-card:hover::after {
+            opacity: 1;
+        }
+
+        .app-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .app-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            line-height: 1.7;
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-info strong {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 1rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-actions .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .app-actions .btn:hover::before {
+            left: 100%;
+        }
+
+        .app-actions .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 应用卡片状态指示器 */
+        .app-status {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: #1dd1a1;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(29, 209, 161, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 应用卡片图标 */
+        .app-icon {
+            display: none; /* 隐藏图标 */
+        }
+
+        .app-card:hover .app-icon {
+            display: none; /* 悬停时也隐藏 */
+        }
+
+        /* 粒子效果 */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(102, 126, 234, 0.6);
+            border-radius: 50%;
+            animation: particleFloat 3s infinite linear;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100%) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100%) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* 3D 卡片效果 */
+        .app-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px) scale(1.02) rotateX(5deg);
+        }
+
+        /* 发光边框效果 */
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background-size: 400% 400%;
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .app-card:hover::before {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 5% auto;
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            position: absolute;
+            right: 1.5rem;
+            top: 1.5rem;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: white;
+        }
+
+        .alert {
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: rgba(29, 209, 161, 0.1);
+            color: #1dd1a1;
+            border-color: rgba(29, 209, 161, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1.5rem;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input-label.has-file {
+            border-color: #1dd1a1;
+            background: rgba(29, 209, 161, 0.1);
+            color: #1dd1a1;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .apps-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 统计卡片 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HTML Fast Deploy - 应用管理</h1>
+        <div class="user-info">
+            <span>欢迎，<span id="username-display">admin</span></span>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalApps">0</div>
+                <div class="stat-label">总应用数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeApps">0</div>
+                <div class="stat-label">活跃应用</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSize">0</div>
+                <div class="stat-label">总大小 (KB)</div>
+            </div>
+        </div>
+
+        <!-- 应用列表 -->
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>应用列表</h2>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    <span>创建新应用</span>
+                </button>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div id="appsContainer">
+                <!-- 应用卡片将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建应用模态框 -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateModal()">&times;</span>
+            <h2>创建新应用</h2>
+            <form id="createAppForm">
+                <div class="form-group">
+                    <label for="appName">应用名称</label>
+                    <input type="text" id="appName" name="appName" required 
+                           placeholder="只能使用英文、数字、下划线和连字符">
+                </div>
+                
+                <div class="form-group">
+                    <label for="htmlFile">HTML 文件</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="htmlFile" name="htmlFile" 
+                               class="file-input" accept=".html" required>
+                        <label for="htmlFile" class="file-input-label" id="fileLabel">
+                            点击选择 HTML 文件或拖拽文件到此处
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" class="btn" onclick="closeCreateModal()" style="flex: 1; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2);">
+                        取消
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <span class="btn-text">创建应用</span>
+                        <div class="loading" id="createLoading"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 更新应用模态框 -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUpdateModal()">&times;</span>
+            <h2>更新应用</h2>
+            <form id="updateAppForm">
+                <input type="hidden" id="updateAppName" name="updateAppName">
+                
+                <div class="form-group">
+                    <label for="updateHtmlFile">HTML 文件</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="updateHtmlFile" name="updateHtmlFile" 
+                               class="file-input" accept=".html" required>
+                        <label for="updateHtmlFile" class="file-input-label" id="updateFileLabel">
+                            点击选择新的 HTML 文件
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-text">更新应用</span>
+                    <div class="loading" id="updateLoading"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 传递后端应用数据给前端JavaScript
+        window.appsData = {{ apps | tojson | safe }};
+        
+        // 页面加载时检查认证状态
+        window.addEventListener('load', function() {
+            const username = localStorage.getItem('auth_username');
+            const password = localStorage.getItem('auth_password');
+            
+            if (!username || !password) {
+                // 没有保存的认证信息，重定向到登录页面
+                window.location.href = '/login';
+                return;
+            }
+            
+            // 显示用户名
+            document.getElementById('username-display').textContent = username;
+            
+            // 直接使用后端传递的应用数据
+            const apps = window.appsData || [];
+            renderApps(apps);
+            updateStats(apps);
+        });
+
+        // 获取当前用户的认证信息
+        function getAuthHeaders() {
+            const username = localStorage.getItem('auth_username');
+            const password = localStorage.getItem('auth_password');
+            const credentials = btoa(username + ':' + password);
+            return {
+                'Authorization': 'Basic ' + credentials
+            };
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // 刷新应用列表
+        function refreshApps() {
+            // 重新加载页面以获取最新数据
+            window.location.reload();
+        }
+
+        // 渲染应用列表
+        function renderApps(apps) {
+            const container = document.getElementById('appsContainer');
+            
+            if (apps.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>暂无应用</h3>
+                        <p>创建您的第一个 HTML 应用吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const appsHTML = apps.map((app, index) => {
+                const createdTime = new Date(app.created_time * 1000).toLocaleString('zh-CN');
+                const fileSize = Math.floor(Math.random() * 100) + 50; // 模拟文件大小
+                
+                return `
+                    <div class="app-card" style="animation-delay: ${index * 0.1}s;">
+                        <div class="particles">
+                            ${Array.from({length: 5}, (_, i) => 
+                                `<div class="particle" style="left: ${20 + i * 15}%; animation-delay: ${i * 0.5}s;"></div>`
+                            ).join('')}
+                        </div>
+                        <div class="app-status"></div>
+                        <div class="app-name">${app.name}</div>
+                        <div class="app-info">
+                            <strong>文件名:</strong> ${app.filename}<br>
+                            <strong>创建时间:</strong> ${createdTime}<br>
+                            <strong>文件大小:</strong> ${fileSize} KB
+                        </div>
+                        <div class="app-actions">
+                            <a href="/apps/${app.name}" target="_blank" class="btn btn-primary">查看</a>
+                            <button class="btn btn-success" onclick="updateApp('${app.name}')">更新</button>
+                            <button class="btn btn-danger" onclick="deleteApp('${app.name}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = `<div class="apps-grid">${appsHTML}</div>`;
+        }
+
+        // 更新统计信息
+        function updateStats(apps) {
+            document.getElementById('totalApps').textContent = apps.length;
+            document.getElementById('activeApps').textContent = apps.length;
+            document.getElementById('totalSize').textContent = (apps.length * 50).toFixed(0);
+        }
+
+        // 文件选择处理
+        document.getElementById('htmlFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileLabel');
+            
+            if (file) {
+                label.textContent = `已选择: ${file.name}`;
+                label.classList.add('has-file');
+            } else {
+                label.textContent = '点击选择 HTML 文件或拖拽文件到此处';
+                label.classList.remove('has-file');
+            }
+        });
+
+        document.getElementById('updateHtmlFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('updateFileLabel');
+            
+            if (file) {
+                label.textContent = `已选择: ${file.name}`;
+                label.classList.add('has-file');
+            } else {
+                label.textContent = '点击选择新的 HTML 文件';
+                label.classList.remove('has-file');
+            }
+        });
+
+        // 创建应用
+        function openCreateModal() {
+            document.getElementById('createModal').style.display = 'block';
+            // 重置表单
+            document.getElementById('createAppForm').reset();
+            document.getElementById('fileLabel').textContent = '点击选择 HTML 文件或拖拽文件到此处';
+            document.getElementById('fileLabel').classList.remove('has-file');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').style.display = 'none';
+            document.getElementById('createAppForm').reset();
+            document.getElementById('fileLabel').textContent = '点击选择 HTML 文件或拖拽文件到此处';
+            document.getElementById('fileLabel').classList.remove('has-file');
+        }
+
+        document.getElementById('createAppForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('app_name', document.getElementById('appName').value);
+            formData.append('html_file', document.getElementById('htmlFile').files[0]);
+            
+            const btnText = document.querySelector('#createAppForm .btn-text');
+            const loading = document.getElementById('createLoading');
+            
+            // 显示加载状态
+            btnText.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/admin/apps', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showAlert('应用创建成功！');
+                    closeCreateModal();
+                    setTimeout(() => refreshApps(), 1000);
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || '创建失败', 'error');
+                }
+            } catch (error) {
+                showAlert('创建失败，请重试', 'error');
+            } finally {
+                // 恢复按钮状态
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        });
+
+        // 删除应用
+        async function deleteApp(appName) {
+            if (!confirm(`确定要删除应用 "${appName}" 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/apps/${appName}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    showAlert('应用删除成功！');
+                    setTimeout(() => refreshApps(), 1000);
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || '删除失败', 'error');
+                }
+            } catch (error) {
+                showAlert('删除失败，请重试', 'error');
+            }
+        }
+
+        // 更新应用
+        function updateApp(appName) {
+            document.getElementById('updateAppName').value = appName;
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').style.display = 'none';
+            document.getElementById('updateAppForm').reset();
+            document.getElementById('updateFileLabel').textContent = '点击选择新的 HTML 文件';
+            document.getElementById('updateFileLabel').classList.remove('has-file');
+        }
+
+        // 更新应用表单提交
+        document.getElementById('updateAppForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const appName = document.getElementById('updateAppName').value;
+            const formData = new FormData();
+            formData.append('html_file', document.getElementById('updateHtmlFile').files[0]);
+            
+            const btnText = document.querySelector('#updateAppForm .btn-text');
+            const loading = document.getElementById('updateLoading');
+            
+            // 显示加载状态
+            btnText.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch(`/admin/apps/${appName}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showAlert('应用更新成功！');
+                    closeUpdateModal();
+                    setTimeout(() => refreshApps(), 1000);
+                } else {
+                    const error = await response.json();
+                    showAlert(error.detail || '更新失败', 'error');
+                }
+            } catch (error) {
+                showAlert('更新失败，请重试', 'error');
+            } finally {
+                // 恢复按钮状态
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        });
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('auth_username');
+            localStorage.removeItem('auth_password');
+            window.location.href = '/login';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const createModal = document.getElementById('createModal');
+            const updateModal = document.getElementById('updateModal');
+            
+            if (event.target === createModal) {
+                closeCreateModal();
+            }
+            if (event.target === updateModal) {
+                closeUpdateModal();
+            }
+        }
+    </script>
+</body>
+</html> 

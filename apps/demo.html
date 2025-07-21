@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汽车大屏系统 - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .card p {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .card.speed {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .card.rpm {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+
+        .card.temperature {
+            background: linear-gradient(135deg, #48dbfb, #0abde3);
+        }
+
+        .card.fuel {
+            background: linear-gradient(135deg, #1dd1a1, #10ac84);
+        }
+
+        .card.battery {
+            background: linear-gradient(135deg, #ff9ff3, #f368e0);
+        }
+
+        .card.status {
+            background: linear-gradient(135deg, #54a0ff, #2e86de);
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .time {
+            font-size: 1.2rem;
+            color: #ddd;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .alert {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚗 汽车大屏系统</h1>
+        <div class="time" id="time"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="card speed">
+            <h2>车速</h2>
+            <p id="speed">0</p>
+            <span>km/h</span>
+        </div>
+        
+        <div class="card rpm">
+            <h2>转速</h2>
+            <p id="rpm">0</p>
+            <span>RPM</span>
+        </div>
+        
+        <div class="card temperature">
+            <h2>发动机温度</h2>
+            <p id="temp">85</p>
+            <span>°C</span>
+        </div>
+        
+        <div class="card fuel">
+            <h2>油量</h2>
+            <p id="fuel">75</p>
+            <span>%</span>
+        </div>
+        
+        <div class="card battery">
+            <h2>电池电压</h2>
+            <p id="battery">12.6</p>
+            <span>V</span>
+        </div>
+        
+        <div class="card status alert">
+            <h2>系统状态</h2>
+            <p id="status">正常</p>
+            <span>运行中</span>
+        </div>
+    </div>
+
+    <script>
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('time').textContent = timeString;
+        }
+
+        // 模拟车辆数据
+        function updateVehicleData() {
+            // 模拟车速变化
+            const speed = Math.floor(Math.random() * 120) + 60;
+            document.getElementById('speed').textContent = speed;
+            
+            // 模拟转速变化
+            const rpm = Math.floor(Math.random() * 3000) + 2000;
+            document.getElementById('rpm').textContent = rpm;
+            
+            // 模拟温度变化
+            const temp = Math.floor(Math.random() * 20) + 80;
+            document.getElementById('temp').textContent = temp;
+            
+            // 模拟油量变化
+            const fuel = Math.floor(Math.random() * 30) + 60;
+            document.getElementById('fuel').textContent = fuel;
+            
+            // 模拟电池电压变化
+            const battery = (Math.random() * 2 + 11.5).toFixed(1);
+            document.getElementById('battery').textContent = battery;
+            
+            // 系统状态
+            const statuses = ['正常', '注意', '警告'];
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            document.getElementById('status').textContent = status;
+            
+            // 根据状态改变样式
+            const statusCard = document.querySelector('.status');
+            if (status === '警告') {
+                statusCard.style.background = 'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+            } else if (status === '注意') {
+                statusCard.style.background = 'linear-gradient(135deg, #feca57, #ff9ff3)';
+            } else {
+                statusCard.style.background = 'linear-gradient(135deg, #54a0ff, #2e86de)';
+            }
+        }
+
+        // 初始化
+        updateTime();
+        updateVehicleData();
+
+        // 定时更新
+        setInterval(updateTime, 1000);
+        setInterval(updateVehicleData, 2000);
+
+        // 添加键盘事件
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    document.documentElement.requestFullscreen();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

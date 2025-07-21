@@ -1,0 +1,18 @@
+services:
+  server:
+    command:
+    - /bin/sh
+    - -c
+    - python3 run.py
+    image: registry.cn-shanghai.aliyuncs.com/zhph-server/html-fast-deploy:1.0
+    environment:
+      - USER_1_NAME=admin
+      - USER_1_PASSWORD=admin123
+      - USER_2_NAME=puhua
+      - USER_2_PASSWORD=puhua123
+    ports:
+    - 18000:8000
+    restart: always
+    volumes:
+    - ./apps:/app/apps
+version: '3'

@@ -2,6 +2,8 @@
 
 🚀 HTML 快速部署系统 - 基于 FastAPI 的 HTML 应用管理平台
 
+![](docs/apps.png)
+
 ## 项目描述
 
 HTML Fast Deploy 是一个简单高效的 HTML 应用部署和管理系统，基于 FastAPI 构建。它允许用户通过 Web 界面快速上传、管理和部署 HTML 应用。
